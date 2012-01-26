@@ -1,0 +1,7 @@
+
+name = Taxonomy access fix
+description = Fixes the crooked access checks for Taxonomy pages
+core = 7.x
+package = Taxonomy
+
+dependencies[] = taxonomy

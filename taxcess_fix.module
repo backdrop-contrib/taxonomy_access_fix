@@ -6,6 +6,7 @@ function taxcess_fix_form_taxonomy_overview_vocabularies_alter(&$form, &$form_st
     return TRUE;
   }
 
+  // empty text for unauthorized functions
   $empty = array('#type' => 'markup', '#markup' => '&nbsp;');
 
   // others: remove some vocabularies
@@ -13,20 +14,23 @@ function taxcess_fix_form_taxonomy_overview_vocabularies_alter(&$form, &$form_st
     if ( is_numeric($vid) && $vocabulary = $form[$vid]['#vocabulary'] ) {
       // no access at all?
       if ( !taxcess_fix_access('list terms', $vocabulary) ) {
+        $form[$vid]['#access'] = FALSE; // Too bad Taxonomy sucks -- this is not enough
         unset($form[$vid]);
+        continue;
       }
 
       // definitely no "edit vocabulary" access
-      $form[$vid]['edit'] = $empty;
+      $form[$vid]['edit']['#access'] = FALSE;
 
       // maybe no "add terms" access
       if ( !taxcess_fix_access('add terms', $vocabulary) ) {
-        $form[$vid]['add'] = $empty;
+        $form[$vid]['add']['#access'] = FALSE;
       }
-
-      // definitely "list terms" access
     }
   }
+
+  // remove "Save" button
+  $form['actions']['#access'] = FALSE;
 }
 
 function taxcess_fix_permission() {

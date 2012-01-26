@@ -1,5 +1,34 @@
 <?php
 
+function taxcess_fix_form_taxonomy_overview_vocabularies_alter(&$form, &$form_state, $form_id = 'taxonomy_overview_vocabularies') {
+  // admin: don't fix anything
+  if ( user_access('administer taxonomy') ) {
+    return TRUE;
+  }
+
+  $empty = array('#type' => 'markup', '#markup' => '&nbsp;');
+
+  // others: remove some vocabularies
+  foreach ( element_children($form) AS $vid ) {
+    if ( is_numeric($vid) && $vocabulary = $form[$vid]['#vocabulary'] ) {
+      // no access at all?
+      if ( !taxcess_fix_access('list terms', $vocabulary) ) {
+        unset($form[$vid]);
+      }
+
+      // definitely no "edit vocabulary" access
+      $form[$vid]['edit'] = $empty;
+
+      // maybe no "add terms" access
+      if ( !taxcess_fix_access('add terms', $vocabulary) ) {
+        $form[$vid]['add'] = $empty;
+      }
+
+      // definitely "list terms" access
+    }
+  }
+}
+
 function taxcess_fix_permission() {
   $permissions = array();
 

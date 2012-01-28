@@ -28,7 +28,7 @@ function taxonomy_access_fix_form_taxonomy_overview_vocabularies_alter(&$form, &
       // No access at all?
       if (!taxonomy_access_fix_access('list terms', $vocabulary)) {
         // Unfortunately, just setting #access isn't enough.
-		$form[$vid]['#access'] = FALSE;
+        $form[$vid]['#access'] = FALSE;
         unset($form[$vid]);
         continue;
       }

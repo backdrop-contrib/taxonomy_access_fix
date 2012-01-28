@@ -1,0 +1,98 @@
+<?php
+
+function taxonomy_access_fix_form_taxonomy_overview_vocabularies_alter(&$form, &$form_state, $form_id = 'taxonomy_overview_vocabularies') {
+  // admin: don't fix anything
+  if ( user_access('administer taxonomy') ) {
+    return TRUE;
+  }
+
+  // empty text for unauthorized functions
+  $empty = array('#type' => 'markup', '#markup' => '&nbsp;');
+
+  // others: remove some vocabularies
+  foreach ( element_children($form) AS $vid ) {
+    if ( is_numeric($vid) && $vocabulary = $form[$vid]['#vocabulary'] ) {
+      // no access at all?
+      if ( !taxonomy_access_fix_access('list terms', $vocabulary) ) {
+        $form[$vid]['#access'] = FALSE; // Too bad Taxonomy sucks -- this is not enough
+        unset($form[$vid]);
+        continue;
+      }
+
+      // definitely no "edit vocabulary" access
+      $form[$vid]['edit']['#access'] = FALSE;
+
+      // maybe no "add terms" access
+      if ( !taxonomy_access_fix_access('add terms', $vocabulary) ) {
+        $form[$vid]['add']['#access'] = FALSE;
+      }
+    }
+  }
+
+  // remove "Save" button
+  $form['actions']['#access'] = FALSE;
+}
+
+function taxonomy_access_fix_permission() {
+  $permissions = array();
+
+  foreach ( taxonomy_get_vocabularies() AS $vid => $vocabulary ) {
+    $permissions['add terms in ' . $vid] = array(
+      'title' => t('Add terms in %vocabulary', array('%vocabulary' => $vocabulary->name)),
+    );
+  }
+
+  return $permissions;
+}
+
+function taxonomy_access_fix_menu_alter(&$items) {
+  // vocabularies list
+  $item = &$items['admin/structure/taxonomy'];
+  $item['access callback'] = 'taxcess_fix_access';
+  $item['access arguments'] = array('index');
+
+  // terms list in vocabulary
+  $item = &$items['admin/structure/taxonomy/%taxonomy_vocabulary_machine_name'];
+  $item['access callback'] = 'taxcess_fix_access';
+  $item['access arguments'] = array('list terms', 3);
+
+  // add term to vocabulary
+  $item = &$items['admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/add'];
+  $item['access callback'] = 'taxcess_fix_access';
+  $item['access arguments'] = array('add terms', 3);
+}
+
+function taxonomy_access_fix_access($op, $vocabulary = null) {
+  // admin: always
+  if ( user_access('administer taxonomy') ) {
+    return TRUE;
+  }
+
+  // others: well, that depends
+  switch ( $op ) {
+    case 'index':
+      // only if they have >= 1 vocabulary access
+      foreach ( taxonomy_get_vocabularies() AS $vid => $vocabulary ) {
+        if ( user_access('edit terms in ' . $vid) || user_access('delete terms in ' . $vid) ) {
+          return TRUE;
+        }
+      }
+      break;
+    case 'list terms':
+      if ( $vocabulary ) {
+        $vid = $vocabulary->vid;
+        if ( user_access('edit terms in ' . $vid) || user_access('delete terms in ' . $vid) ) {
+          return TRUE;
+        }
+      }
+      break;
+    case 'add terms':
+      if ( $vocabulary ) {
+        $vid = $vocabulary->vid;
+        if ( user_access('add terms in ' . $vid) ) {
+          return TRUE;
+        }
+      }
+      break;
+  }
+}

@@ -7,11 +7,11 @@
  */
 
 /**
- * Implements hook_form_FORM_ID_alter() for taxonomy_overview_vocabularies.
+ * Implements hook_form_FORM_ID_alter() for taxonomy_overview_vocabularies().
  *
  * Form URI: `admin/structure/taxonomy`.
  *
- * @see theme_taxonomy_overview_vocabularies() for the theming to a table.
+ * @see theme_taxonomy_overview_vocabularies()
  */
 function taxonomy_access_fix_form_taxonomy_overview_vocabularies_alter(&$form, &$form_state, $form_id = 'taxonomy_overview_vocabularies') {
   // Admin: don't fix anything.
@@ -75,7 +75,7 @@ function taxonomy_access_fix_permission() {
  *   terms in this vocabulary.
  * * Add vocabulary term: if you have the new "add terms in X" permission.
  *
- * @see taxonomy_access_fix_access().
+ * @see taxonomy_access_fix_access()
  */
 function taxonomy_access_fix_menu_alter(&$items) {
   // Vocabularies list.
@@ -97,7 +97,7 @@ function taxonomy_access_fix_menu_alter(&$items) {
 /**
  * Creates an access callback for custom vocabulary access.
  *
- * @see taxonomy_access_fix_permission().
+ * @see taxonomy_access_fix_permission()
  * @see http://api.drupal.org/api/drupal/modules--taxonomy--taxonomy.module/function/taxonomy_permission/7
  */
 function taxonomy_access_fix_access($op, $vocabulary = NULL) {

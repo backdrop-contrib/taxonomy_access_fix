@@ -210,3 +210,29 @@ function taxonomy_access_fix_update_role_permissions($original, $updated) {
     ->fields(array('permission' => 'add terms in ' . $updated))
     ->execute();
 }
+
+/**
+ * Implements hook_admin_menu_map().
+ */
+function taxonomy_access_fix_admin_menu_map() {
+  if (!user_access('administer taxonomy')) {
+    $vocabularies = array();
+    foreach (taxonomy_get_vocabularies() as $vid => $vocabulary) {
+      if (taxonomy_access_fix_access('index', $vocabulary)) {
+        $vocabularies[] = $vocabulary->machine_name;
+      }
+    }
+
+    if ($vocabularies) {
+      $map = array(
+        'admin/structure/taxonomy/%taxonomy_vocabulary_machine_name' => array(
+          'parent' => 'admin/structure/taxonomy',
+          'arguments' => array(
+            array('%taxonomy_vocabulary_machine_name' => $vocabularies),
+          ),
+        ),
+      );
+      return $map;
+    }
+  }
+}

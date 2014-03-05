@@ -144,6 +144,10 @@ function taxonomy_access_fix_access($op, $vocabulary = NULL) {
     return TRUE;
   }
 
+  if ($vocabulary && is_string($vocabulary)) {
+    $vocabulary = taxonomy_vocabulary_machine_name_load($vocabulary);
+  }
+
   // Others: well, that depends.
   switch ($op) {
     case 'index':

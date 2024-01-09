@@ -1,14 +1,7 @@
-
+type = module
 name = Taxonomy access fix
 description = Fixes the crooked access checks for Taxonomy pages
-core = 7.x
+backdrop = 1.x
 package = Taxonomy
 
 dependencies[] = taxonomy
-
-; Information added by Drupal.org packaging script on 2018-02-09
-version = "7.x-2.4"
-core = "7.x"
-project = "taxonomy_access_fix"
-datestamp = "1518211686"
-
